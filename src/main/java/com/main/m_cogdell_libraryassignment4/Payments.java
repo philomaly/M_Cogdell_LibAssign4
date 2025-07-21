@@ -8,8 +8,10 @@ public class Payments {
     private static Integer memberID;
     private static Date paymentDate;
     private static String method;
+    private static Double amountPaid;
 
-    public Payments(Integer paymentID, Integer fineID, Integer memberID, Date paymentDate, String method) {
+    public Payments(Integer paymentID, Integer fineID,
+                    Integer memberID, Date paymentDate, String method, Double amountPaid) {
         this.paymentID = paymentID;
         this.fineID = fineID;
         this.memberID = memberID;
@@ -32,4 +34,6 @@ public class Payments {
     public void setPaymentDate(Date paymentDate) { this.paymentDate = paymentDate; }
     public String getMethod() { return method; }
     public void setMethod(String method) { this.method = method; }
+    public Double getAmountPaid() { return amountPaid; }
+    public void setAmountPaid(Double amountPaid) { this.amountPaid = amountPaid; }
 }

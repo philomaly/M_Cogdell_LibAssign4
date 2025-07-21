@@ -23,6 +23,7 @@ public class DataBaseComm implements Insert, Retrieve, Update{
             System.out.println("Test Passed!!!");
             conn.close();
             System.out.println("Database Connection Closed...");
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
