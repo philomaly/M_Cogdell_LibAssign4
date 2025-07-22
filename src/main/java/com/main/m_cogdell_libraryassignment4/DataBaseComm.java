@@ -20,7 +20,12 @@ public class DataBaseComm implements Insert, Retrieve, Update{
         try{
             Connection conn = DriverManager.getConnection(url, user, password);
             System.out.println("Connected to database...");
-            System.out.println("Test Passed!!!");
+            System.out.println("Creating Tables....");
+            String createSQL = "CREATE TABLE Authors (authorID INT PRIMARY KEY, fullName VARCHAR(50), " +
+                    "nationality CHAR(30), birthYear INT);" +
+                    "CREATE TABLE Books (bookID INT PRIMARY KEY, title VARCHAR(50), authorID INT" +
+                    "FOREIGN KEY REFERENCES Authors (authorID), genre VARCHAR(50), " +
+                    "publicationYear INT, ISBN VARCHAR(25), availableCopies INT);";
             conn.close();
             System.out.println("Database Connection Closed...");
 
@@ -32,7 +37,9 @@ public class DataBaseComm implements Insert, Retrieve, Update{
     // INSERT INTO <table> (<col1, ... , colN>) VALUES (<elementData>)
     @Override
     public void insert(){
+
         System.out.println("Inserting...");
+
     }
 
     @Override
