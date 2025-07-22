@@ -5,6 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class LibraryApplication extends Application {
@@ -17,13 +18,15 @@ public class LibraryApplication extends Application {
         stage.show();
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
+
         DataBaseComm tester = new DataBaseComm(); // Instantiating a DataBaseComm Object
         tester.insert();
         tester.update();
         String variable = tester.retrieve();
         System.out.println(variable.toString());
         tester.connect();
+
         launch();
     }
 }

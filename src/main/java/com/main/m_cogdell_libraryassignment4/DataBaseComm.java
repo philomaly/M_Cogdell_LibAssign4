@@ -20,12 +20,20 @@ public class DataBaseComm implements Insert, Retrieve, Update{
         try{
             Connection conn = DriverManager.getConnection(url, user, password);
             System.out.println("Connected to database...");
-            System.out.println("Creating Tables....");
-            String createSQL = "CREATE TABLE Authors (authorID INT PRIMARY KEY, fullName VARCHAR(50), " +
-                    "nationality CHAR(30), birthYear INT);" +
-                    "CREATE TABLE Books (bookID INT PRIMARY KEY, title VARCHAR(50), authorID INT" +
-                    "FOREIGN KEY REFERENCES Authors (authorID), genre VARCHAR(50), " +
-                    "publicationYear INT, ISBN VARCHAR(25), availableCopies INT);";
+            System.out.println("Creating and Loading Tables....");
+
+            Schema sch = new Schema();
+            String schema = sch.getSchema();
+            String init = sch.getInitialInserts();
+
+            // Display output for verification
+            System.out.println(schema);
+            System.out.println(init);
+
+            System.out.println("Tables and Initial Insert Queries Loaded...");
+
+
+
             conn.close();
             System.out.println("Database Connection Closed...");
 
