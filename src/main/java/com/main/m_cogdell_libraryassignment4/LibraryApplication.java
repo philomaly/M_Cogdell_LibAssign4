@@ -7,6 +7,7 @@ import javafx.stage.Stage;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.sql.SQLException;
 
 public class LibraryApplication extends Application {
     @Override
@@ -18,14 +19,11 @@ public class LibraryApplication extends Application {
         stage.show();
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, SQLException {
 
         DataBaseComm tester = new DataBaseComm(); // Instantiating a DataBaseComm Object
-        tester.insert();
-        tester.update();
-        String variable = tester.retrieve();
-        System.out.println(variable.toString());
         tester.connect();
+        tester.closeConnection();
 
         launch();
     }

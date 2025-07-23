@@ -5,7 +5,7 @@ package com.main.m_cogdell_libraryassignment4;
  * It keeps me from having to manually type everything
  */
 class Schema {
-    public String schema = "CREATE TABLE Authors (\n" +
+    private static String schema = "CREATE TABLE Authors (\n" +
             "\tauthorID INT PRIMARY KEY,\n" +
             "\tfullName VARCHAR(25),\n" +
             "\tnationality CHAR(30),\n" +
@@ -65,7 +65,7 @@ class Schema {
             "ALTER TABLE Payments ADD amountPaid NUMERIC(10,2);\n" +
             "ALTER TABLE Fines ADD FOREIGN KEY (memberID, bookID, borrowDate)\n" +
             "REFERENCES Borrowings (memberID, bookID, borrowDate);";
-    public String initialInserts = "INSERT INTO Authors (authorID, fullName, nationality, birthYear) VALUES\n" +
+    private static String initialInserts = "INSERT INTO Authors (authorID, fullName, nationality, birthYear) VALUES\n" +
             "\t(1, 'George Orwell', 'British', 1903),\n" +
             "\t(2, 'Jane Austen', 'British', 1775),\n" +
             "\t(3, 'Mark Twain', 'American', 1835),\n" +
@@ -122,8 +122,10 @@ class Schema {
             "\t(402, 302, 204, '2023-02-28', 'Cash', 2.50),\n" +
             "\t(403, 304, 207, '2023-04-15', 'Card', 1.50);";
 
+    // Constructor
     public Schema(){}
 
+    // Getters
     public String getSchema() { return schema; }
     public String getInitialInserts() { return initialInserts; }
 }
