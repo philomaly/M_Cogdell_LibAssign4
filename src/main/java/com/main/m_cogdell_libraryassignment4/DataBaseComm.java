@@ -3,8 +3,9 @@ import java.sql.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Scanner;
 
-public class DataBaseComm implements Insert, Retrieve, Update {
+public class DataBaseComm implements Insert, Search, Update {
 
     private static String url = "jdbc:postgresql://localhost:5432/LibrarySystem";
     private static String user = "postgres";
@@ -12,6 +13,13 @@ public class DataBaseComm implements Insert, Retrieve, Update {
     public Connection conn;
     public DatabaseMetaData meta;       // Metadata object to ensure proper connection to intended database
     private static Schema sch;          // Schema object for DDL Tables and Initial Insertions into DBase (See 'Schema' class)
+    public PreparedStatement schemaStmt, initStmt, newMember, newBook,
+            newBorrowRecord, newPaymentRecord;
+    Members membersObject;
+    Books booksObject;
+    Borrowings borrowingsObject;
+    Payments paymentsObject;
+    Scanner in = new Scanner(System.in);
 
     // Constructor initializes all Connection class fields
     public DataBaseComm() throws SQLException {
@@ -31,8 +39,6 @@ public class DataBaseComm implements Insert, Retrieve, Update {
             System.out.println("Connected to database: " + meta.getDatabaseProductName());
             System.out.println("URL: " + meta.getURL());
 
-
-            PreparedStatement schemaStmt, initStmt;
             String schema = sch.getSchema();        // Store DDL portion of script into "schema" variable for Schema Creation
             String init = sch.getInitialInserts();  // Store DML portion of script into "init" variable for initial population of dBase
 
@@ -51,26 +57,63 @@ public class DataBaseComm implements Insert, Retrieve, Update {
         }
     } // end connect() method
 
-
+//=====================================================================================================
 
     @Override
-    public void insert() {
-        System.out.println("Inserting...");
+    public void insert() throws SQLException {
+        // Insert: new members, new books, borrowings record, payment record
+
+        // Insert New Member
+        membersObject = new Members(in.nextInt(), in.nextLine(), in.nextLine(), in.nextLine(),
+                in.nextLine(), in.nextBoolean());
+        System.out.println("Inserting New Member...");
+        String addMemberQuery = "INSERT INTO Members (memberID, fullName, email, phone, joinDate, activeStatus)" +
+                "VALUES(?,?,?,?,?,?)";
+        newMember = conn.prepareStatement(addMemberQuery);
+        newMember.setInt(1, membersObject.getMemberID());
+        newMember.setString(2, membersObject.getFullName());
+        newMember.setString(3, membersObject.getEmail());
+        newMember.setString(4, membersObject.getPhone());
+        newMember.setString(5, membersObject.getJoinDate());
+        newMember.setBoolean(6, membersObject.getActiveStatus());
+        newMember.execute();
+
+        // Insert New Book
+        booksObject = new Books(in.nextInt(), in.nextLine(), in.nextLine(), in.nextInt(),
+                in.nextLine(), in.nextInt());
+        System.out.println("Inserting New Book...");
+        String addBookQuery = "INSERT INTO Books (bookID, title, genre, publicationYear, ISBN, availableCopies)" +
+                "VALUES(?,?,?,?,?,?)";
+        newBook = conn.prepareStatement(addBookQuery);
+        newBook.setInt(1, booksObject.getBookID());
+        newBook.setString(2, booksObject.getTitle());
+        newBook.setString(3, booksObject.getGenre());
+        newBook.setInt(3, booksObject.getPublicationYear());
+        newBook.setString(4, booksObject.getISBN());
+        newBook.setInt(5, booksObject.getAvailableCopies());
+        newBook.execute();
+
+        // Insert New Borrowings Record
+        borrowingsObject = new Borrowings(in.nextInt(), in.nextLine(), in.nextLine(), in.nextLine(),
+                in.nextLine(), in.nextBoolean());
+
+        // Insert New Payment Record
     }
+
+    //==================================================================================================
 
     @Override
     public void update(){
+        // Update: Return date of a borrowed book, payment status of a fine
         System.out.println("Updating...");
     }
 
     @Override
-    public String retrieve() {
-        return "Retrieving...";
-    }
-
-    public void dropTables(String table) {
-        String drop = "DROP TABLE (table);";
-    }
+    public String search() {
+        // Search for books by title, author, and genre
+        // Borrowing history for a member
+        return "";
+    } // end search() method
 
     public void closeConnection() throws SQLException {
         conn.close();

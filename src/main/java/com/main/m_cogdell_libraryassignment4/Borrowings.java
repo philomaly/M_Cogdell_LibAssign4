@@ -7,11 +7,11 @@ public class Borrowings {
     private static String fullName;
     private static String email;
     private static String phone;
-    private static Date joinDate;
+    private static String joinDate;
     private static Boolean activeStatus;
 
     public Borrowings(Integer memberID, String fullName,String email, String phone,
-                      Date joinDate, Boolean activeStatus) {
+                      String joinDate, Boolean activeStatus) {
         this.memberID = memberID;
         this.fullName = fullName;
         this.email = email;
@@ -33,8 +33,8 @@ public class Borrowings {
     public void setEmail(String email) { this.email = email; }
     public String getPhone(){ return phone; }
     public void setPhone(String phone) { this.phone = phone; }
-    public Date getJoinDate() { return joinDate; }
-    public void setJoinDate(Date joinDate) { this.joinDate = joinDate; }
+    public String getJoinDate() { return joinDate; }
+    public void setJoinDate(String joinDate) { this.joinDate = joinDate; }
     public Boolean getActiveStatus() { return activeStatus; }
 
 }

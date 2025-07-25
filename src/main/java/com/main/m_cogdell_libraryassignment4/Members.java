@@ -7,11 +7,11 @@ public class Members {
     private static String fullName;
     private static String email;
     private static String phone;
-    private static Date joinDate;
+    private static String joinDate;
     private static Boolean activeStatus;
 
     public Members(Integer memberID, String fullName, String email,
-                   String phone, Date joinDate, Boolean activeStatus) {
+                   String phone, String joinDate, Boolean activeStatus) {
         this.memberID = memberID;
         this.fullName = fullName;
         this.email = email;
@@ -20,9 +20,7 @@ public class Members {
         this.activeStatus = activeStatus;
     }
 
-    public Members(String fullName) {
-        this.fullName = fullName;
-    }
+    public Members() { }
 
     // Getters/Setters
     public Integer getMemberID(){ return memberID; }
@@ -33,8 +31,8 @@ public class Members {
     public void setEmail(String email) { this.email = email; }
     public String getPhone(){ return phone; }
     public void setPhone(String phone) { this.phone = phone; }
-    public Date getJoinDate() { return joinDate; }
-    public void setJoinDate(Date joinDate) { this.joinDate = joinDate; }
+    public String getJoinDate() { return joinDate; }
+    public void setJoinDate(String joinDate) { this.joinDate = joinDate; }
     public Boolean getActiveStatus() { return activeStatus; }
     public void setActiveStatues(Boolean activeStatus) { this.activeStatus = activeStatus; }
 }
