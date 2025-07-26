@@ -19,9 +19,7 @@ public class Payments {
         this.method = method;
     }
 
-    public Payments(Integer memberID) {
-        this.memberID = memberID;
-    }
+    public Payments( ) { }
 
     //Getters/Setters
     public Integer getPaymentID(){ return paymentID; }

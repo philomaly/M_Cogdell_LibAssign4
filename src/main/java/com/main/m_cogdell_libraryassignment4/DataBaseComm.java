@@ -5,7 +5,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Scanner;
 
-public class DataBaseComm implements Update {
+public class DataBaseComm {
 
     private static String url = "jdbc:postgresql://localhost:5432/LibrarySystem";
     private static String user = "postgres";
@@ -14,7 +14,8 @@ public class DataBaseComm implements Update {
     public DatabaseMetaData meta;       // Metadata object to ensure proper connection to intended database
     private static Schema sch;          // Schema object for DDL Tables and Initial Insertions into DBase (See 'Schema' class)
     public PreparedStatement schemaStmt, initStmt, newMember, newBook,
-            newBorrowRecord, newPaymentRecord, bookByTitleSearch, bookByAuthorSearch, bookByGenreSearch;
+            newBorrowRecord, newPaymentRecord, bookSearch;
+    public ResultSet tableExists, results;
     Members membersObject;
     Books booksObject;
     Borrowings borrowingsObject;
@@ -48,7 +49,7 @@ public class DataBaseComm implements Update {
 
 // schemaCheck() Helper Method: Checks whether tables/schema are already loaded in database, or not
     public Boolean schemaCheck(String tableName) throws SQLException {
-        ResultSet tableExists = meta.getTables(null, null, tableName, null);
+        tableExists = meta.getTables(null, null, tableName, null);
         if (tableExists.next()) {
             tableExists.close();
             return true;
@@ -172,18 +173,34 @@ public class DataBaseComm implements Update {
     // Insert New Borrowings Record
     public void insertBorrow() throws SQLException {
 
-        borrowingsObject = new Borrowings(in.nextInt(), in.nextLine(), in.nextLine(), in.nextLine(),
-                in.nextLine(), in.nextBoolean());
+        borrowingsObject = new Borrowings();
+
+        System.out.println("Enter Member ID...");
+        borrowingsObject.setMemberID(in.nextInt());
+        in.nextLine();
+
+        System.out.println("Enter Book ID...");
+        borrowingsObject.setBookID(in.nextInt());
+        in.nextLine();
+
+        System.out.println("Enter Borrow Date(YYYY-MM-DD)...");
+        borrowingsObject.setBorrowDate(in.next());
+
+        System.out.println("Enter Due Date(YYYY-MM-DD)...");
+        borrowingsObject.setDueDate(in.next());
+
+        System.out.println("Enter Return (YYYY-MM-DD)...");
+        borrowingsObject.setReturnDate(in.next());
+
         System.out.println("Inserting New Borrow Record...");
-        String addBorrowQuery = "INSERT INTO Borrowings (memberID, fullName, email, phone, joinDate, activeStatus)" +
-                "VALUES (?, ?, ?, ?, ?, ?)";
+        String addBorrowQuery = "INSERT INTO Borrowings (memberID, bookID, borrowDate, dueDate, returnDate)" +
+                "VALUES (?, ?, CAST(? AS DATE), CAST(? AS DATE), CAST(? AS DATE))";
         newBorrowRecord = conn.prepareStatement(addBorrowQuery);
         newBorrowRecord.setInt(1, borrowingsObject.getMemberID());
-        newBorrowRecord.setString(2, borrowingsObject.getFullName());
-        newBorrowRecord.setString(3, borrowingsObject.getEmail());
-        newBorrowRecord.setString(4, borrowingsObject.getPhone());
-        newBorrowRecord.setString(5, borrowingsObject.getJoinDate());
-        newBorrowRecord.setBoolean(6, borrowingsObject.getActiveStatus());
+        newBorrowRecord.setInt(2, borrowingsObject.getBookID());
+        newBorrowRecord.setString(3, borrowingsObject.getBorrowDate());
+        newBorrowRecord.setString(4, borrowingsObject.getdueDate());
+        newBorrowRecord.setString(5, borrowingsObject.getReturnDate());
         newBorrowRecord.execute();
 
     } // end insertBorrow Method
@@ -193,10 +210,32 @@ public class DataBaseComm implements Update {
     // Insert New Payment Record
     public void insertPayment() throws SQLException {
 
-        paymentsObject = new Payments(in.nextInt(), in.nextInt(), in.nextInt(),
-                in.nextLine(), in.nextLine(), in.nextDouble());
-        String newPayment = "INSERT INTO Payment (paymentID, fineID, memberID, paymentDate, method, amountPaid) " +
-                "VALUES (?, ?, ?, ?, ?, ?)";
+        paymentsObject = new Payments();
+
+        System.out.println("Enter Payment ID...");
+        paymentsObject.setPaymentID(in.nextInt());
+        in.nextLine();
+
+        System.out.println("Enter Fine ID...");
+        paymentsObject.setFineID(in.nextInt());
+        in.nextLine();
+
+        System.out.println("Enter Member ID...");
+        paymentsObject.setMemberID(in.nextInt());
+        in.nextLine();
+
+        System.out.println("Enter Payment Date (YYYY-MM-DD)...");
+        paymentsObject.setPaymentDate(in.next());
+
+        System.out.println("Enter Method (Cash or Card)...");
+        paymentsObject.setMethod(in.next());
+
+        System.out.println("Enter Amount Paid...");
+        paymentsObject.setAmountPaid(in.nextDouble());
+        in.nextLine();
+
+        String newPayment = "INSERT INTO Payments (paymentID, fineID, memberID, paymentDate, method, amountPaid) " +
+                "VALUES (?, ?, ?, CAST(? AS DATE), ?, ?)";
         newPaymentRecord = conn.prepareStatement(newPayment);
         newPaymentRecord.setInt(1, paymentsObject.getPaymentID());
         newPaymentRecord.setInt(2, paymentsObject.getFineID());
@@ -210,19 +249,61 @@ public class DataBaseComm implements Update {
 
 //======================================================================================================================
 
-    @Override
-    public void update(){
-        // Update: Return date of a borrowed book, payment status of a fine
-        System.out.println("Updating...");
-    }
-
-
-    public String bookByTitleSearch() {
+    public void Search() throws SQLException {
         // Search for books by title, author, and genre
 
+        System.out.println("Enter Book Search Type: (title, author, or genre)...");
+        String searchType = in.nextLine();
+        System.out.println();
+        String title, author, genre;
+
+        if(searchType.contains("title")) {
+            System.out.println("Enter Title of Book...");
+            System.out.println();
+            title = in.nextLine();
+            String titleQuery = "SELECT * FROM Books WHERE Title ILIKE ?;";
+            bookSearch = conn.prepareStatement(titleQuery);
+            bookSearch.setString(1, "%" + title + "%");
+        } else if (searchType.contains("author")) {
+            System.out.println("Enter Author's Name...");
+            System.out.println();
+            author = in.nextLine();
+            String authorQuery = "SELECT * FROM Authors A JOIN Books B ON B.authorID = A.authorID " +
+                    "WHERE A.fullName ILIKE ?;";
+            bookSearch = conn.prepareStatement(authorQuery);
+            bookSearch.setString(1, "%" + author + "%");
+        } else {
+            System.out.println("Enter Genre of Book...");
+            System.out.println();
+            genre = in.nextLine();
+            String genreQuery = "SELECT * FROM Books WHERE Genre ILIKE ?;";
+            bookSearch = conn.prepareStatement(genreQuery);
+            bookSearch.setString(1, "%" + genre + "%");
+        }
+
+        results = bookSearch.executeQuery();
+        Boolean found = false;
+        while(results.next()) {
+            found = true;
+            System.out.println("Book ID: " + results.getInt("bookID"));
+            System.out.println("Title: " + results.getString("title"));
+            System.out.println("Author ID: " + results.getString("authorid"));
+            System.out.println("Genre: " + results.getString("genre"));
+            System.out.println("Publication Year: " + results.getString("publicationyear"));
+            System.out.println("ISBN: " + results.getString("isbn"));
+            System.out.println("Copies Available: " + results.getString("availablecopies"));
+            System.out.println();
+        }
+        if(!found) {
+            System.out.println("Results Not Found...");
+        }
+        results.close();
+
         // Borrowing history for a member
-        return "";
+
     } // end search() method
+
+//======================================================================================================================
 
     public void closeConnection() throws SQLException {
         conn.close();

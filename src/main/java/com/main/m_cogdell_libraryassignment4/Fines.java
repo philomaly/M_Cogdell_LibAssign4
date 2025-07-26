@@ -11,9 +11,7 @@ public class Fines {
     private static Boolean paidStatus;
     private static Date paymentDate;
 
-    public Fines (Integer fineID){
-        this.fineID = fineID;
-    }
+    public Fines ( ){}
 
     // Getters/Setters
     public Integer getFineID() { return fineID; }

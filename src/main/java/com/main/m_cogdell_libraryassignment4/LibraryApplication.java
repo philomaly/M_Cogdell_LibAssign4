@@ -25,9 +25,9 @@ public class LibraryApplication extends Application {
         tester.connect();
         tester.loadSchema();
 
-        tester.insertBook();
+        tester.Search();
 
-
+        System.out.println();
         tester.closeConnection();
 
         launch();
