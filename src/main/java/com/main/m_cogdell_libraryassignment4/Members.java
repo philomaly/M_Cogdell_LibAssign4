@@ -34,5 +34,5 @@ public class Members {
     public String getJoinDate() { return joinDate; }
     public void setJoinDate(String joinDate) { this.joinDate = joinDate; }
     public Boolean getActiveStatus() { return activeStatus; }
-    public void setActiveStatues(Boolean activeStatus) { this.activeStatus = activeStatus; }
+    public void setActiveStatus(Boolean activeStatus) { this.activeStatus = activeStatus; }
 }

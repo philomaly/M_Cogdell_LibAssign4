@@ -23,6 +23,11 @@ public class LibraryApplication extends Application {
 
         DataBaseComm tester = new DataBaseComm(); // Instantiating a DataBaseComm Object
         tester.connect();
+        tester.loadSchema();
+
+        tester.insertBook();
+
+
         tester.closeConnection();
 
         launch();

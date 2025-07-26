@@ -18,9 +18,10 @@ public class Books {
         this.availableCopies = availableCopies;
     }
 
+    public Books() {}
+
     public Integer getBookID() { return bookID; }
     public void setBookID(Integer bookID) { this.bookID = bookID; }
-    public Books(String title){ this.title = title; }
     public String getTitle() { return title; }
     public void setTitle(String title) {this.title = title;}
     public String getGenre() { return genre; }
@@ -30,6 +31,6 @@ public class Books {
     public String getISBN() { return ISBN; }
     public void setISBN(String ISBN) { this.ISBN = ISBN; }
     public Integer getAvailableCopies() { return availableCopies; }
-    public void setGetAvailableCopies(Integer availableCopies) { this.availableCopies = availableCopies; }
+    public void setAvailableCopies(Integer availableCopies) { this.availableCopies = availableCopies; }
 
 }
