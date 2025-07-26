@@ -259,23 +259,23 @@ public class DataBaseComm {
 
         if(searchType.contains("title")) {
             System.out.println("Enter Title of Book...");
-            System.out.println();
             title = in.nextLine();
+            System.out.println();
             String titleQuery = "SELECT * FROM Books WHERE Title ILIKE ?;";
             bookSearch = conn.prepareStatement(titleQuery);
             bookSearch.setString(1, "%" + title + "%");
         } else if (searchType.contains("author")) {
             System.out.println("Enter Author's Name...");
-            System.out.println();
             author = in.nextLine();
+            System.out.println();
             String authorQuery = "SELECT * FROM Authors A JOIN Books B ON B.authorID = A.authorID " +
                     "WHERE A.fullName ILIKE ?;";
             bookSearch = conn.prepareStatement(authorQuery);
             bookSearch.setString(1, "%" + author + "%");
         } else {
             System.out.println("Enter Genre of Book...");
-            System.out.println();
             genre = in.nextLine();
+            System.out.println();
             String genreQuery = "SELECT * FROM Books WHERE Genre ILIKE ?;";
             bookSearch = conn.prepareStatement(genreQuery);
             bookSearch.setString(1, "%" + genre + "%");
@@ -303,6 +303,10 @@ public class DataBaseComm {
 
     } // end search() method
 
+//======================================================================================================================
+    public void Update() {
+
+    }
 //======================================================================================================================
 
     public void closeConnection() throws SQLException {
