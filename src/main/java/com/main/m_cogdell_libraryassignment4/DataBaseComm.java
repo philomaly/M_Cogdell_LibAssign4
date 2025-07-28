@@ -17,7 +17,7 @@ public class DataBaseComm {
             newBorrowRecord, newPaymentRecord, bookSearch;
     public ResultSet tableExists, results;
     Members membersObject;
-    Books booksObject;
+    Books booksObject, count;
     Borrowings borrowingsObject;
     Payments paymentsObject;
     Scanner in = new Scanner(System.in);
@@ -205,6 +205,12 @@ public class DataBaseComm {
 
     } // end insertBorrow Method
 
+//======================================================================================================================
+    // Return a Book ( write a stored procedure/function ) to implement
+
+    public void ReturnBook(){
+        borrowingsObject.getBookID();
+    }
 //======================================================================================================================
 
     // Insert New Payment Record
