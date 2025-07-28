@@ -5,6 +5,23 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Scanner;
 
+/*
+
+* Method List for DataBaseComm Class
+* connect() = connects to database
+* schemaCheck() = helper method for loadSchema() method: checks if tables are already loaded
+* loadSchema() = loads Schema Script from SQL_Script_Table_Insert_Scripts.sql file
+* loadInitialInserts() = loads initial database inserts from script file
+* insertMember() = inserts new member
+* insertBook() = inserts a new book
+* insertBorrow() = inserts a new borrow record
+* returnBook() = returns book
+* insertPayment() = for fine payment processing
+* search() = book search by title, author, genre, or history (as in user's borrow history)
+* closeConnection() = closes the database connection
+*
+* */
+
 public class DataBaseComm {
 
     private static String url = "jdbc:postgresql://localhost:5432/LibrarySystem";
@@ -89,40 +106,51 @@ public class DataBaseComm {
 
     public void insertMember() throws SQLException {
         // Insert: new members, new books, borrowings record, payment record
+    try {
+            // Insert New Member
+            membersObject = new Members();
 
-        // Insert New Member
-        membersObject = new Members();
+            System.out.println("Enter Member ID...");
+            membersObject.setMemberID(in.nextInt());
+            in.nextLine(); // corrects /n buffer issue left by in.nextInt()
 
-        System.out.println("Enter Member ID...");
-        membersObject.setMemberID(in.nextInt());
-        in.nextLine(); // corrects /n buffer issue left by in.nextInt()
+            System.out.println("Enter Full Name...");
+            membersObject.setFullName(in.nextLine());
 
-        System.out.println("Enter Full Name...");
-        membersObject.setFullName(in.nextLine());
+            System.out.println("Enter email... ");
+            membersObject.setEmail(in.next());
 
-        System.out.println("Enter email... ");
-        membersObject.setEmail(in.next());
+            System.out.println("Enter Phone number (no spaces)...");
+            membersObject.setPhone(in.next());
 
-        System.out.println("Enter Phone number (no spaces)...");
-        membersObject.setPhone(in.next());
+            System.out.println("Enter Join date (YYYY-MM-DD)...");
+            membersObject.setJoinDate(in.next());
 
-        System.out.println("Enter Join date (YYYY-MM-DD)...");
-        membersObject.setJoinDate(in.next());
+            System.out.println("Enter Active Status (true or false)");
+            membersObject.setActiveStatus(in.nextBoolean());
 
-        System.out.println("Enter Active Status (true or false)");
-        membersObject.setActiveStatus(in.nextBoolean());
+            System.out.println("Inserting New Member...");
+            String addMemberQuery = "INSERT INTO Members (memberID, fullName, email, phone, joinDate, activeStatus)" +
+                    "VALUES(?, ?, ?, ?, CAST(? AS DATE), ?)";
+            newMember = conn.prepareStatement(addMemberQuery);
+            newMember.setInt(1, membersObject.getMemberID());
+            newMember.setString(2, membersObject.getFullName());
+            newMember.setString(3, membersObject.getEmail());
+            newMember.setString(4, membersObject.getPhone());
+            newMember.setString(5, membersObject.getJoinDate());
+            newMember.setBoolean(6, membersObject.getActiveStatus());
+            newMember.execute();
 
-        System.out.println("Inserting New Member...");
-        String addMemberQuery = "INSERT INTO Members (memberID, fullName, email, phone, joinDate, activeStatus)" +
-                "VALUES(?, ?, ?, ?, CAST(? AS DATE), ?)";
-        newMember = conn.prepareStatement(addMemberQuery);
-        newMember.setInt(1, membersObject.getMemberID());
-        newMember.setString(2, membersObject.getFullName());
-        newMember.setString(3, membersObject.getEmail());
-        newMember.setString(4, membersObject.getPhone());
-        newMember.setString(5, membersObject.getJoinDate());
-        newMember.setBoolean(6, membersObject.getActiveStatus());
-        newMember.execute();
+    } catch (SQLException e) {
+
+        if(e.getMessage().contains("date/time field value out of range")) {
+            System.out.println("Error: Invalid date entered...");
+        } else if (e.getMessage().contains("duplicate key")) {
+            System.out.println("Member already exists...");
+        } else {
+            System.out.println("Error adding member: " + e.getMessage());
+        }
+    } // end try/catch
 
     } // end insertMember Method
 
@@ -201,8 +229,8 @@ public class DataBaseComm {
 
     // Return a Book ( write a stored procedure/function ) to implement
 
-    public void ReturnBook() throws SQLException {
-        borrowingsObject.getBookID();
+    public void returnBook() throws SQLException {
+        //borrowingsObject.getBookID();
         System.out.println("Enter Member ID...");
         int memberID = in.nextInt();
         in.nextLine();
@@ -253,8 +281,8 @@ public class DataBaseComm {
         System.out.println("Processing Payment...");
 
         // Call payFine Function
-        String payFineFunction = "SELECT payFine(?, ?)";
-        newPaymentRecord = conn.prepareStatement("payFineFunction");
+        String payFineFunction = "SELECT payFine(?, CAST(? AS NUMERIC))";
+        newPaymentRecord = conn.prepareStatement(payFineFunction);
         newPaymentRecord.setInt(1, fineID);
         newPaymentRecord.setDouble(2, amount);
         paymentResult = newPaymentRecord.executeQuery();
@@ -267,17 +295,19 @@ public class DataBaseComm {
         paymentResult.close();
         newPaymentRecord.close();
 
-    }
+    } // end insertPayment() Method
 
 //======================================================================================================================
 
-    public void Search() throws SQLException {
+    public void search() throws SQLException {
         // Search for books by title, author, and genre
 
-        System.out.println("Enter Book Search Type: (title, author, or genre)...");
+        System.out.println("Enter Book Search Type: (title, author, genre, or history" +
+                " (for user borrow history))...");
         String searchType = in.nextLine();
         System.out.println();
         String title, author, genre;
+        int memberID;
 
         if(searchType.contains("title")) {
             System.out.println("Enter Title of Book...");
@@ -294,6 +324,18 @@ public class DataBaseComm {
                     "WHERE A.fullName ILIKE ?;";
             bookSearch = conn.prepareStatement(authorQuery);
             bookSearch.setString(1, "%" + author + "%");
+        }
+        else if(searchType.contains("history")) {
+            System.out.println("Enter Member ID...");
+            memberID = in.nextInt();
+            in.nextLine();
+
+            String memberHistoryQuery = "SELECT b.title, m.fullName FROM Borrowings br JOIN Books b ON " +
+                    "br.bookID = b.bookID JOIN Members m ON m.memberID = br.memberID WHERE " +
+                    "br.memberID = ? ORDER BY br.borrowDate DESC;";
+            bookSearch = conn.prepareStatement(memberHistoryQuery);
+            bookSearch.setInt(1, memberID);
+
         } else {
             System.out.println("Enter Genre of Book...");
             genre = in.nextLine();
@@ -305,17 +347,24 @@ public class DataBaseComm {
 
         results = bookSearch.executeQuery();
         Boolean found = false;
+
         while(results.next()) {
             found = true;
-            System.out.println("Book ID: " + results.getInt("bookID"));
-            System.out.println("Title: " + results.getString("title"));
-            System.out.println("Author ID: " + results.getString("authorid"));
-            System.out.println("Genre: " + results.getString("genre"));
-            System.out.println("Publication Year: " + results.getString("publicationyear"));
-            System.out.println("ISBN: " + results.getString("isbn"));
-            System.out.println("Copies Available: " + results.getString("availablecopies"));
-            System.out.println();
-        }
+            if(searchType.contains("history")) {
+                System.out.println("Book Title: " + results.getString("title"));
+                System.out.println("Member: " + results.getString("fullName"));
+            } else {
+                System.out.println("Book ID: " + results.getInt("bookID"));
+                System.out.println("Title: " + results.getString("title"));
+                System.out.println("Author ID: " + results.getString("authorid"));
+                System.out.println("Genre: " + results.getString("genre"));
+                System.out.println("Publication Year: " + results.getString("publicationyear"));
+                System.out.println("ISBN: " + results.getString("isbn"));
+                System.out.println("Copies Available: " + results.getString("availablecopies"));
+                System.out.println();
+            } // end if/else
+        } // end while loop
+
         if(!found) {
             System.out.println("Results Not Found...");
         }
