@@ -26,7 +26,7 @@ public class DataBaseComm {
 
     private static String url = "jdbc:postgresql://localhost:5432/LibrarySystem";
     private static String user = "postgres";
-    private static String password = "CrazyFastRiviera1968";
+    private static String password;
     public Connection conn;
     public DatabaseMetaData meta;       // Metadata object to ensure proper connection to intended database
     private static Schema sch;          // Schema object for DDL Tables and Initial Insertions into DBase (See 'Schema' class)
@@ -40,11 +40,14 @@ public class DataBaseComm {
     Scanner in = new Scanner(System.in);
     public Boolean schemaInitialized;
 
+
     // Constructor initializes path and credentials upon object instantiation
-    public DataBaseComm() throws SQLException {
+
+    public DataBaseComm(String password) throws SQLException {
+
         DataBaseComm.url = url;
         DataBaseComm.user = user;
-        DataBaseComm.password = password;
+        this.password = password;
     }
 
 //======================================================================================================================

@@ -5,9 +5,11 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import java.io.Console;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Scanner;
 
 /*
 
@@ -44,15 +46,39 @@ public class LibraryApplication extends Application {
 
     public static void main(String[] args) throws IOException, SQLException {
 
-        DataBaseComm tester = new DataBaseComm(); // Instantiating a DataBaseComm Object
-        tester.connect();
-        tester.loadSchema();
+        Console console = System.console();
+        Scanner in = new Scanner(System.in);
+        String password;
 
-        // use this  the next line to test DataBaseComm Class Methods
-        tester.search();
+        // Password Prompt
+        if(console != null) {
+            System.out.println("Enter password...");
+            char[] passwordArray = console.readPassword();
+            password = new String(passwordArray);
+            java.util.Arrays.fill(passwordArray, ' ');
+        } else {
+            System.out.println("Enter password (Note: it will be visible in IDE...) ");
+            password = in.nextLine();
+        }
+        try {
+            // Database connection
+            DataBaseComm tester = new DataBaseComm(password); // Instantiating a DataBaseComm Object
+            tester.connect();
+            tester.loadSchema();
 
-        System.out.println();
-        tester.closeConnection();
+            // use this  the next line to test DataBaseComm Class Methods
+            tester.search();
+
+            System.out.println();
+            tester.closeConnection();
+            in.close();
+        } catch (SQLException e) {
+            if (e.getMessage().contains("password authentication failed")) {
+                System.out.println("Error: Incorrect Password. Please try again...");
+            } else {
+                System.out.println("Database error: " + e.getMessage());
+            }
+        }
 
 
         launch();
