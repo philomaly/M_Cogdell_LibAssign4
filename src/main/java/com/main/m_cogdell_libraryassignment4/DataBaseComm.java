@@ -14,8 +14,8 @@ public class DataBaseComm {
     public DatabaseMetaData meta;       // Metadata object to ensure proper connection to intended database
     private static Schema sch;          // Schema object for DDL Tables and Initial Insertions into DBase (See 'Schema' class)
     public PreparedStatement schemaStmt, initStmt, newMember, newBook,
-            newBorrowRecord, newPaymentRecord, bookSearch;
-    public ResultSet tableExists, results;
+            newBorrowRecord, newPaymentRecord, bookSearch, returnBook;
+    public ResultSet tableExists, results, borrowRecordMessage, bookReturn, paymentResult;
     Members membersObject;
     Books booksObject, count;
     Borrowings borrowingsObject;
@@ -28,7 +28,6 @@ public class DataBaseComm {
         DataBaseComm.url = url;
         DataBaseComm.user = user;
         DataBaseComm.password = password;
-
     }
 
 //======================================================================================================================
@@ -183,34 +182,59 @@ public class DataBaseComm {
         borrowingsObject.setBookID(in.nextInt());
         in.nextLine();
 
-        System.out.println("Enter Borrow Date(YYYY-MM-DD)...");
-        borrowingsObject.setBorrowDate(in.next());
-
-        System.out.println("Enter Due Date(YYYY-MM-DD)...");
-        borrowingsObject.setDueDate(in.next());
-
-        System.out.println("Enter Return (YYYY-MM-DD)...");
-        borrowingsObject.setReturnDate(in.next());
-
-        System.out.println("Inserting New Borrow Record...");
-        String addBorrowQuery = "INSERT INTO Borrowings (memberID, bookID, borrowDate, dueDate, returnDate)" +
-                "VALUES (?, ?, CAST(? AS DATE), CAST(? AS DATE), CAST(? AS DATE))";
+        System.out.println("Attempting new borrow record insertion...");
+        String addBorrowQuery = "SELECT borrowBook(?, ?)";
         newBorrowRecord = conn.prepareStatement(addBorrowQuery);
         newBorrowRecord.setInt(1, borrowingsObject.getMemberID());
         newBorrowRecord.setInt(2, borrowingsObject.getBookID());
-        newBorrowRecord.setString(3, borrowingsObject.getBorrowDate());
-        newBorrowRecord.setString(4, borrowingsObject.getdueDate());
-        newBorrowRecord.setString(5, borrowingsObject.getReturnDate());
-        newBorrowRecord.execute();
+        borrowRecordMessage = newBorrowRecord.executeQuery();
+
+        // Display text returned by borrowBook() function
+        if(borrowRecordMessage.next()) {
+            String message = borrowRecordMessage.getString(1);
+            System.out.println(message);
+        }
 
     } // end insertBorrow Method
 
 //======================================================================================================================
+
     // Return a Book ( write a stored procedure/function ) to implement
 
-    public void ReturnBook(){
+    public void ReturnBook() throws SQLException {
         borrowingsObject.getBookID();
-    }
+        System.out.println("Enter Member ID...");
+        int memberID = in.nextInt();
+        in.nextLine();
+
+        System.out.println("Enter Book ID...");
+        int bookID = in.nextInt();
+        in.nextLine();
+
+        System.out.println("Enter Return Date (YYYY/MM/DD)...");
+        String returnDate = in.next();
+
+        System.out.println("Processing Return...");
+
+        // Call returnBook function
+        String returnBookFunction = "SELECT returnBook(?, ?, CAST(? AS DATE))";
+        returnBook = conn.prepareStatement(returnBookFunction);
+        returnBook.setInt(1, memberID);
+        returnBook.setInt(2, bookID);
+        returnBook.setString(3, returnDate);
+        bookReturn = returnBook.executeQuery();
+
+        // Display message
+        if(bookReturn.next()) {
+            String message = bookReturn.getString(1);
+            System.out.println(message);
+        }
+
+        bookReturn.close();
+        returnBook.close();
+
+    } // end ReturnBook() Method
+
 //======================================================================================================================
 
     // Insert New Payment Record
@@ -218,40 +242,32 @@ public class DataBaseComm {
 
         paymentsObject = new Payments();
 
-        System.out.println("Enter Payment ID...");
-        paymentsObject.setPaymentID(in.nextInt());
-        in.nextLine();
-
         System.out.println("Enter Fine ID...");
-        paymentsObject.setFineID(in.nextInt());
+        int fineID = in.nextInt();
         in.nextLine();
 
-        System.out.println("Enter Member ID...");
-        paymentsObject.setMemberID(in.nextInt());
+        System.out.println("Enter Payment Amount...");
+        double amount = in.nextDouble();
         in.nextLine();
 
-        System.out.println("Enter Payment Date (YYYY-MM-DD)...");
-        paymentsObject.setPaymentDate(in.next());
+        System.out.println("Processing Payment...");
 
-        System.out.println("Enter Method (Cash or Card)...");
-        paymentsObject.setMethod(in.next());
+        // Call payFine Function
+        String payFineFunction = "SELECT payFine(?, ?)";
+        newPaymentRecord = conn.prepareStatement("payFineFunction");
+        newPaymentRecord.setInt(1, fineID);
+        newPaymentRecord.setDouble(2, amount);
+        paymentResult = newPaymentRecord.executeQuery();
 
-        System.out.println("Enter Amount Paid...");
-        paymentsObject.setAmountPaid(in.nextDouble());
-        in.nextLine();
+        if(paymentResult.next()) {
+            String message = paymentResult.getString(1);
+            System.out.println(message);
+        }
 
-        String newPayment = "INSERT INTO Payments (paymentID, fineID, memberID, paymentDate, method, amountPaid) " +
-                "VALUES (?, ?, ?, CAST(? AS DATE), ?, ?)";
-        newPaymentRecord = conn.prepareStatement(newPayment);
-        newPaymentRecord.setInt(1, paymentsObject.getPaymentID());
-        newPaymentRecord.setInt(2, paymentsObject.getFineID());
-        newPaymentRecord.setInt(3, paymentsObject.getMemberID());
-        newPaymentRecord.setString(4, paymentsObject.getPaymentDate());
-        newPaymentRecord.setString(5, paymentsObject.getMethod());
-        newPaymentRecord.setDouble(6, paymentsObject.getAmountPaid());
-        newPaymentRecord.execute();
+        paymentResult.close();
+        newPaymentRecord.close();
 
-    } // end insertPayment Method
+    }
 
 //======================================================================================================================
 
@@ -305,14 +321,8 @@ public class DataBaseComm {
         }
         results.close();
 
-        // Borrowing history for a member
-
     } // end search() method
 
-//======================================================================================================================
-    public void Update() {
-
-    }
 //======================================================================================================================
 
     public void closeConnection() throws SQLException {
