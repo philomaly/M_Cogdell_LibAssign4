@@ -2,8 +2,12 @@ package com.main.m_cogdell_libraryassignment4;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
+import javafx.scene.paint.Color;
+import javafx.scene.*;
 
 import java.io.Console;
 import java.io.FileNotFoundException;
@@ -35,52 +39,31 @@ import java.util.Scanner;
  * */
 
 public class LibraryApplication extends Application {
+    private Paint Color;
+
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(LibraryApplication.class.getResource("hello-view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 320, 240);
-        stage.setTitle("Hello!");
+
+        Group root = new Group();
+        Scene scene = new Scene(fxmlLoader.load());
+        stage.setTitle("Library Management System");
         stage.setScene(scene);
         stage.show();
     }
 
     public static void main(String[] args) throws IOException, SQLException {
 
-        Console console = System.console();
-        Scanner in = new Scanner(System.in);
-        String password;
+        // Database connection
+        DataBaseComm tester = new DataBaseComm(); // Instantiating a DataBaseComm Object
+        tester.connect();
+        tester.loadSchema();
+        tester.loadFunction();
 
-        // Password Prompt
-        if(console != null) {
-            System.out.println("Enter password...");
-            char[] passwordArray = console.readPassword();
-            password = new String(passwordArray);
-            java.util.Arrays.fill(passwordArray, ' ');
-        } else {
-            System.out.println("Enter password (Note: it will be visible in IDE...) ");
-            password = in.nextLine();
-        }
-        try {
-            // Database connection
-            DataBaseComm tester = new DataBaseComm(password); // Instantiating a DataBaseComm Object
-            tester.connect();
-            tester.loadSchema();
-
-            // use this  the next line to test DataBaseComm Class Methods
-            tester.search();
-
-            System.out.println();
-            tester.closeConnection();
-            in.close();
-        } catch (SQLException e) {
-            if (e.getMessage().contains("password authentication failed")) {
-                System.out.println("Error: Incorrect Password. Please try again...");
-            } else {
-                System.out.println("Database error: " + e.getMessage());
-            }
-        }
-
+        System.out.println();
+        tester.closeConnection();
+        //in.close();
 
         launch();
-    }
+    } // end main
 }

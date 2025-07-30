@@ -43,18 +43,19 @@ public class DataBaseComm {
 
     // Constructor initializes path and credentials upon object instantiation
 
-    public DataBaseComm(String password) throws SQLException {
+    public DataBaseComm() throws SQLException {
 
         DataBaseComm.url = url;
         DataBaseComm.user = user;
-        this.password = password;
+        //this.password = password;
     }
 
 //======================================================================================================================
 
     // Connect to Database
     public void connect() throws SQLException {
-
+        System.out.println("Enter your password...");
+        this.password = login(in.nextLine());
         this.conn = DriverManager.getConnection(url, user, password);
         this.meta = conn.getMetaData();
         this.sch = new Schema();
@@ -62,7 +63,19 @@ public class DataBaseComm {
         System.out.println("URL: " + meta.getURL());
         System.out.println();
 
+    } // end connect() Method
+//======================================================================================================================
+
+    public void loadFunction() {
+
     }
+
+//======================================================================================================================
+
+    public String login(String password) {
+        this.password = password;
+        return password;
+    } // end login() Method
 
 //======================================================================================================================
 
