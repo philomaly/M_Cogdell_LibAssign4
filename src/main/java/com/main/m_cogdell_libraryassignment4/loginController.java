@@ -10,7 +10,7 @@ import javafx.scene.control.TextField;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class loginViewController implements Initializable {
+public class loginController implements Initializable {
     @FXML
     private TextField userNameField;
     private PasswordField passwordField;
