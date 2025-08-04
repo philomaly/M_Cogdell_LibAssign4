@@ -43,9 +43,9 @@ public class LibraryApplication extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(LibraryApplication.class.getResource("hello-view.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(LibraryApplication.class.getResource("login-view.fxml"));
 
-        Group root = new Group();
+        //Group root = new Group();
         Scene scene = new Scene(fxmlLoader.load());
         stage.setTitle("Library Management System");
         stage.setScene(scene);
@@ -54,6 +54,7 @@ public class LibraryApplication extends Application {
 
     public static void main(String[] args) throws IOException, SQLException {
 
+        launch();
         // Database connection
         DataBaseComm tester = new DataBaseComm(); // Instantiating a DataBaseComm Object
         tester.connect();
@@ -64,6 +65,6 @@ public class LibraryApplication extends Application {
         tester.closeConnection();
         //in.close();
 
-        launch();
+
     } // end main
 }

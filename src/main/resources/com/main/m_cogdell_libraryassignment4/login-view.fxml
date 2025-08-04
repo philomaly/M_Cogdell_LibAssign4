@@ -14,11 +14,9 @@
 <?import javafx.stage.Stage?>
 
 
-<Stage xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.main.m_cogdell_libraryassignment4.DataBaseComm">
-   <scene>
-      <Scene>
-         <root>
-            <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="160.0" prefWidth="600.0">
+
+            <BorderPane xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.main.m_cogdell_libraryassignment4.DataBaseComm"
+                        maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="160.0" prefWidth="600.0">
                <top>
                   <VBox BorderPane.alignment="CENTER">
                      <children>
@@ -60,7 +58,3 @@
                   </HBox>
                </center>
             </BorderPane>
-         </root>
-      </Scene>
-   </scene>
-</Stage>
